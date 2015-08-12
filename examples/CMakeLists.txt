@@ -31,6 +31,10 @@ target_link_libraries(simple openlase)
 add_executable(pong pong.c)
 target_link_libraries(pong openlase)
 
+add_executable(helloCPP hello.cpp)
+target_link_libraries(helloCPP ${JACK_LIBRARIES} m openlase)
+
+
 if(ALSA_FOUND)
   add_executable(midiview midiview.c)
   target_link_libraries(midiview openlase ${ALSA_LIBRARIES})

@@ -49,8 +49,14 @@ if(NOT DEFINED BUILD_TRACER)
   set(BUILD_TRACER "Y" CACHE BOOL "Build the image tracer (x86 only)" FORCE)
 endif()
 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
+SET(CMAKE_CXX_FLAGS_DEBUG "-g -p -O0 -Wall -pedantic -Werror ")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -flto -DNDEBUG")
+
+
 add_subdirectory (libol)
 add_subdirectory (output)
 add_subdirectory (tools)
 add_subdirectory (python)
 add_subdirectory (examples)
+add_subdirectory (game)

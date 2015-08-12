@@ -71,6 +71,10 @@ typedef struct {
 	int padding_points;
 } OLFrameInfo;
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+  
 int olInit(int buffer_count, int max_points);
 
 void olSetRenderParams(OLRenderParams *params);
@@ -141,5 +145,9 @@ void olLog(const char *fmt, ...);
 typedef void (*LogCallbackFunc)(const char *msg);
 
 void olSetLogCallback(LogCallbackFunc f);
+
+  #ifdef __cplusplus
+}
+#endif 
 
 #endif
