@@ -1,1 +1,2 @@
 * playback 5 er red
+* default er fra -1,1
