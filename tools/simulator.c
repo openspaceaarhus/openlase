@@ -124,7 +124,7 @@ static inline void laser_color(float r, float g, float b, float ascale)
 		b = 2.0;
 
 	float l = (r + g + b) / 3.0f;
-	float m = max(r,max(g,b));
+	float m = 1.0 - max(r,max(g,b));
 
 	if (l > 1.0) {
 		r = g = b = l - 1.0;
@@ -136,7 +136,8 @@ static inline void laser_color(float r, float g, float b, float ascale)
 		g = 1.0;
 	if ( b > 1.0 )
 		b = 1.0;
-	glColor4f(r, g, b, m*ascale);
+	/* invert to make somebody happy */
+	glColor4f(1.0 - r, 1.0 - g, 1.0 -b, m*ascale);
 
 }
 

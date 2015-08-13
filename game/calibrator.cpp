@@ -59,23 +59,9 @@ int main(int argc, char *argv[]) {
   while(1) {
     olLoadIdentity();
 
-    olBegin(OL_LINESTRIP);
-    olVertex(-w, -w, C_WHITE);
-    olVertex(w, w, C_WHITE);
-    olEnd();
-
-
-    olBegin(OL_LINESTRIP);
-    olVertex(-w*.5f, -w*.5f, C_WHITE);
-    olVertex(w*.5f, w*.5f, C_WHITE);
-    olEnd();
-
-    olBegin(OL_LINESTRIP);
-    olVertex(-w*.25f, -w*.25f, C_RED);
-    olVertex(w*.25f, w*.25f, C_RED);
-    olEnd();
-
-    
+    olRect(-w, -w, w, w, C_WHITE);
+    olRect(-w*.5f, -w*.5f, w*.5f, w*.5f, C_WHITE);
+    olRect(-w*.25f, -w*.25f, w*.25f, w*.25f, C_RED);
     
     ftime = olRenderFrame(60);
     frames++;
