@@ -23,8 +23,10 @@ public:
   virtual void render() const {
     int color = (col.b) + (col.g<<8) + (col.r<<16);
     olBegin(OL_LINESTRIP);
-    for(auto p : vertices) 
+    for(auto p : vertices)  {
       olVertex(p.x, p.y, color);
+      cout << p.x << ", " << p.y << endl;
+    }
     olEnd();
   }
   ivec3 col;
@@ -43,10 +45,10 @@ public:
 
   virtual void tick(int ms) {
     vertices.clear();
-    vertices.emplace_back(vec2 {400,400} + vec2 {cos(t-.02), sin(t-.02)} * 320.0f);
-    vertices.emplace_back(vec2 {400,400} + vec2 {cos(t), sin(t)} * 310.0f);
-    vertices.emplace_back(vec2 {400,400} + vec2 {cos(t+.02), sin(t+.02)} * 320.0f);
-    vertices.emplace_back(vec2 {400,400} + vec2 {cos(t-.02), sin(t-.02)} * 320.0f);
+    vertices.emplace_back(vec2 {cos(t-.02), sin(t-.02)});
+    vertices.emplace_back(vec2 {cos(t), sin(t)});
+    vertices.emplace_back(vec2 {cos(t+.02), sin(t+.02)});
+    vertices.emplace_back(vec2 {cos(t-.02), sin(t-.02)});
   }
 
   void rightPressed() {
@@ -74,8 +76,8 @@ public:
 
     t0 = tdist(gen);
     dt = dtdist(gen);
-    r1 = 20;
-    w = 20;
+    r1 = 0.2;
+    w = 0.2;
     da = daDist(gen) * ((coin(gen)  > .5) ? 1.0 : -1.0);
   }
   Block(vec2 origo, double t0, float dt, float r1, float w) 
@@ -84,28 +86,18 @@ public:
 
   virtual void tick(int ms) {
     vertices.clear();
-    const float stepSize = 1.13f;
+    const float stepSize = .13f;
     auto d0 = vec2 {cos(t0), sin(t0)};
     auto d1 = vec2 {cos(t0 + dt), sin(t0 + dt)};
-    vertices.emplace_back(origo + r1* d0);
+    vertices.emplace_back(origo + r1 * d0);
     vertices.emplace_back(origo + (r1 + w)	* d0);
 
-    for(float t = 0.0f; t < dt; t += stepSize) {
-      auto dir = vec2 {cos(t0 + t), sin(t0 + t)};
-      vertices.emplace_back(origo + (r1 + w) * dir);
-    }
-
-    vertices.emplace_back(origo + (r1 + w)	* d1);
-    vertices.emplace_back(origo + r1	* d1);
-    for(float t = dt; t > 0; t -= stepSize) {
-      auto dir = vec2 {cos(t0 + t), sin(t0 + t)};
-      vertices.emplace_back(origo + r1  * dir);
-    }
+    vertices.emplace_back(origo + (r1 + w)	* d0);
 
     vertices.emplace_back(origo + r1	* d0);
 
     t0 += ms * da;
-    r1 += ms/100.0f;
+    r1 += ms;
   }
   float r1;  // inner radius
 private:
@@ -149,7 +141,7 @@ int main(int argc, char *argv[]) {
 
   vector<Block> blocks;
 
-  auto b = Block {vec2{400,400} };
+  auto b = Block {vec2{0,0} };
   blocks.push_back( b);
 
 
@@ -159,11 +151,8 @@ int main(int argc, char *argv[]) {
     return retval;
   }
 
-  float fps = 10.0;
   float time = 0;
   float ftime;
-  int i;
-
   int frames = 0;
 
   int frame = 0;
@@ -198,15 +187,15 @@ int main(int argc, char *argv[]) {
       /// far out man
       blocks.erase(blocks.begin());
     }
-    if (blocks.back().r1 > 53) {
+    if (blocks.back().r1 > 1.0) {
       // spawn new block
-      blocks.emplace_back(Block {vec2{400,400} });
+      blocks.emplace_back(Block {vec2{0,0} });
     }
 
     ftime = olRenderFrame(60);
     frames++;
     time += ftime;
-        for_each(begin(blocks), end(blocks), [ftime] (Block& b) { b.tick(ftime);});
+    for_each(begin(blocks), end(blocks), [ftime] (Block& b) { b.tick(ftime);});
     p1.tick(ftime);
 
     printf("Frame time: %f, FPS:%f\n", ftime, frames/time);

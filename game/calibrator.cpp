@@ -35,7 +35,7 @@ void initol() {
   params.snap = 1/100000.0;
   params.render_flags = RENDER_GRAYSCALE;
   
-  if(olInit(3, 30000) < 0)
+  if(olInit(3, 3000) < 0)
     throw "hest";
   
   olSetRenderParams(&params);
@@ -51,28 +51,37 @@ int main(int argc, char *argv[]) {
 
   cout << "w = " << w;
 
-  float fps = 10.0;
   float time = 0;
   float ftime;
-  int i;
 
   int frames = 0;
 
-  int white = 0xFFFFFF;
   while(1) {
     olLoadIdentity();
 
     olBegin(OL_LINESTRIP);
-    olVertex(0, 0, white);
-    olVertex(w, w, white);
+    olVertex(-w, -w, C_WHITE);
+    olVertex(w, w, C_WHITE);
     olEnd();
+
+
+    olBegin(OL_LINESTRIP);
+    olVertex(-w*.5f, -w*.5f, C_WHITE);
+    olVertex(w*.5f, w*.5f, C_WHITE);
+    olEnd();
+
+    olBegin(OL_LINESTRIP);
+    olVertex(-w*.25f, -w*.25f, C_RED);
+    olVertex(w*.25f, w*.25f, C_RED);
+    olEnd();
+
+    
     
     ftime = olRenderFrame(60);
     frames++;
     time += ftime;
 
     printf("Frame time: %f, FPS:%f w=%f\n", ftime, frames/time, w);
-    w *= 1.001;
 
   }
     
