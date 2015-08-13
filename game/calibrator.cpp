@@ -25,7 +25,7 @@ void initol() {
   params.rate = 48000;
   params.on_speed = 2.0/100.0;
   params.off_speed = 2.0/20.0;
-  params.start_wait = 8;
+  params.start_wait = 20;
   params.start_dwell = 3;
   params.curve_dwell = 0;
   params.corner_dwell = 8;
