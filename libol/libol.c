@@ -210,9 +210,9 @@ static int process (nframes_t nframes, void *arg)
 			*o_x++ = p->x;
 			*o_y++ = p->y;
 
-			*o_r++ = ((p->color >> 16) & 0xff) / 255.0f;
-			*o_g++ = ((p->color >> 8) & 0xff) / 255.0f;
-			*o_b++ = (p->color & 0xff) / 255.0f;
+			*o_r++ = 1.0f - (((p->color >> 16) & 0xff) / 255.0f);
+			*o_g++ = 1.0f - (((p->color >> 8) & 0xff) / 255.0f);
+			*o_b++ = 1.0f - ((p->color & 0xff) / 255.0f);
 
 			*o_al++ = frames[crbuf].audio_l[out_point];
 			*o_ar++ = frames[crbuf].audio_r[out_point];
@@ -228,6 +228,7 @@ static int process (nframes_t nframes, void *arg)
 
 int olInit(int buffer_count, int max_points)
 {
+  olLog("olInit()\n");
 	int i;
 	static const char jack_client_name[] = "libol";
 	jack_status_t jack_status;
@@ -259,10 +260,12 @@ int olInit(int buffer_count, int max_points)
 		frames[i].audio_l = malloc(frames[i].pmax * sizeof(float));
 		frames[i].audio_r = malloc(frames[i].pmax * sizeof(float));
 	}
-
-	if ((client = jack_client_open(jack_client_name, JackNullOption, &jack_status)) == 0) {
+	olLog("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+	if ((client = jack_client_open(jack_client_name, JackNoStartServer, &jack_status)) == 0) {
 		olLog ("jack server not running?\n");
 		return -1;
+	} else {
+	  olLog("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXjack_client_open()\n");
 	}
 
 	jack_set_process_callback (client, process, 0);

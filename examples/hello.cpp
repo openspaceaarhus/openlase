@@ -128,7 +128,7 @@ int main (int argc, char *argv[])
 
     unsigned int r,g,b;
     HSBToRGB(hue, saturation, brightness, &r, &g, &b);
-
+    r = g = b = 255; 		// whiteout
     int color = (b) + (g<<8) + (r<<16);
 
     for(i=0; i<2; i++) {
