@@ -67,9 +67,18 @@ int main(int argc, char *argv[]) {
       auto b = i>>2 & 1 ? 255 : 0;
       auto c = (r << 16) | (g<<8) | b;
 
-      olRect(-w + i*step, -w + i*step, -w + (i+1)*step, -w + (i+1)*step,c);
+      auto low = -w + i*step;
+      auto high = -w + (i+1)*step;
+      olRect(low,low, high,high,c);
+      if (i==0) {
+	olRect(low+.1,low+.1, high-.1,high-.1,C_RED);
+      }
     }
-    
+
+    olRect(0		, -w, 1.0 * step , -w + step, C_RED);
+    olRect(step		, -w, 2.0 * step , -w + step, C_GREEN);
+    olRect(2.0 * step	, -w, 3.0 * step , -w + step, C_BLUE);
+
     ftime = olRenderFrame(60);
     frames++;
     time += ftime;
