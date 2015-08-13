@@ -59,9 +59,16 @@ int main(int argc, char *argv[]) {
   while(1) {
     olLoadIdentity();
 
-    olRect(-w, -w, w, w, C_WHITE);
-    olRect(-w*.5f, -w*.5f, w*.5f, w*.5f, C_WHITE);
-    olRect(-w*.25f, -w*.25f, w*.25f, w*.25f, C_RED);
+    auto step = 2.0*w / 7.0f;
+    
+    for(int i=0; i < 7; i++) {
+      auto r = i & 1 ? 255 : 0;
+      auto g = i>>1 & 1 ? 255 : 0;
+      auto b = i>>2 & 1 ? 255 : 0;
+      auto c = (r << 16) | (g<<8) | b;
+
+      olRect(-w + i*step, -w + i*step, -w + (i+1)*step, -w + (i+1)*step,c);
+    }
     
     ftime = olRenderFrame(60);
     frames++;
