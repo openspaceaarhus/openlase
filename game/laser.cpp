@@ -23,7 +23,7 @@ namespace laser {
     params.snap = 1/100000.0;
     params.render_flags = RENDER_GRAYSCALE;
   
-    if(olInit(3, 3000) < 0)
+    if(olInit(3, 30000) < 0)
       throw "hest";
   
     olSetRenderParams(&params);
