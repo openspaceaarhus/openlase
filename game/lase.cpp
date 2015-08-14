@@ -1,3 +1,5 @@
+#include "laser.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -112,30 +114,6 @@ private:
 
 Player p1;
 
-int initol() {
-  // from examples/simple.c
-  OLRenderParams params;
-  
-  memset(&params, 0, sizeof params);
-  params.rate = 48000;
-  params.on_speed = 2.0/100.0;
-  params.off_speed = 2.0/20.0;
-  params.start_wait = 8;
-  params.start_dwell = 3;
-  params.curve_dwell = 0;
-  params.corner_dwell = 8;
-  params.curve_angle = cosf(30.0*(M_PI/180.0)); // 30 deg
-  params.end_dwell = 3;
-  params.end_wait = 7;
-  params.snap = 1/100000.0;
-  params.render_flags = RENDER_GRAYSCALE;
-  
-  if(olInit(3, 30000) < 0)
-    return 1;
-  
-  olSetRenderParams(&params);
-  return 0;
-}
 
 int main(int argc, char *argv[]) {
 
@@ -145,12 +123,7 @@ int main(int argc, char *argv[]) {
   blocks.push_back( b);
 
 
-  auto retval = initol();
-  if (retval < 0) {
-    cerr << "Something happend" << endl;
-    return retval;
-  }
-
+  laser::initol();
   float time = 0;
   float ftime;
   int frames = 0;
