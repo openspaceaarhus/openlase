@@ -5,10 +5,17 @@ INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIR})
 INCLUDE_DIRECTORIES (${CMAKE_SOURCE_DIR}/include)
 LINK_DIRECTORIES (${CMAKE_BINARY_DIR}/libol)
 
-ADD_EXECUTABLE(gameosaa lase.cpp)
-TARGET_LINK_LIBRARIES(gameosaa ${JACK_LIBRARIES} m openlase ${SDL2_LIBRARY})
+MACRO(ADDLASE lasename)
+  ADD_EXECUTABLE(${lasename} laser.cpp ${ARGN})
+  TARGET_LINK_LIBRARIES(${lasename} ${JACK_LIBRARIES} m openlase ${SDL2_LIBRARY})
+ENDMACRO()
 
 
-ADD_EXECUTABLE(calibrator calibrator.cpp)
-TARGET_LINK_LIBRARIES(calibrator ${JACK_LIBRARIES} m openlase ${SDL2_LIBRARY})
+ADDLASE(gameosaa
+  lase.cpp)
 
+ADDLASE(calibrator 
+  calibrator.cpp)
+
+ADDLASE(svgotron
+  svgotron.cpp)

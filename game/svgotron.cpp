@@ -1,13 +1,45 @@
-#include <libol.h>
-#include "laser.h"
-
 #include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+#include <random>
+#include <sstream>
+
+#include <libol.h>
+
+#define NANOSVG_IMPLEMENTATION  // Expands implementation
+#include "nanosvg.h"
 
 using namespace std;
 
+
+void initol() {
+  // from examples/simple.c
+  OLRenderParams params;
+  
+  memset(&params, 0, sizeof params);
+  params.rate = 48000;
+  params.on_speed = 2.0/100.0;
+  params.off_speed = 2.0/20.0;
+  params.start_wait = 20;
+  params.start_dwell = 3;
+  params.curve_dwell = 0;
+  params.corner_dwell = 8;
+  params.curve_angle = cosf(30.0*(M_PI/180.0)); // 30 deg
+  params.end_dwell = 3;
+  params.end_wait = 7;
+  params.snap = 1/100000.0;
+  params.render_flags = RENDER_GRAYSCALE;
+  
+  if(olInit(3, 3000) < 0)
+    throw "hest";
+  
+  olSetRenderParams(&params);
+}
+
 int main(int argc, char *argv[]) {
 
-  laser::initol();
+  initol();
   auto w =  1.0f;
   if (argc > 1) {
     w = std::atof(argv[1]);
