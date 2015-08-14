@@ -82,27 +82,27 @@ void scaleAndOffSet() {
   }
 }
 
+void loadFile(std::string filename) {
+  image = nsvgParseFromFile(filename.c_str(), "px", 96);
+  printf("size: %f x %f\n", image->width, image->height);
+  measureAABB();
+  scaleAndOffSet();
+  // measureAABB();
+}
+
 int main(int argc, char *argv[]) {
   std::string filename{"hest.svg"};
   if (argc > 1) {
     filename = argv[1];
   }
-  image = nsvgParseFromFile(filename.c_str(), "px", 96);
-  printf("size: %f x %f\n", image->width, image->height);
-  measureAABB();
-  scaleAndOffSet();
-  measureAABB();
-  
+  loadFile(filename);
   laser::initol();
+
   float time = 0;
   float ftime;
-
   int frames = 0;
-
   while(1) {
     olLoadIdentity();
-
-
     for (auto shape = image->shapes; shape != NULL; shape = shape->next) {
       auto paint = shape->stroke;
       uint32_t color = (paint.type == NSVG_PAINT_COLOR) ? paint.color : C_WHITE;
@@ -129,19 +129,13 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    
     ftime = olRenderFrame(60);
     frames++;
     time += ftime;
-
     printf("Frame time: %f, FPS:%f \n", ftime, frames/time);
-
   }
-
   // Delete
   nsvgDelete(image);
-
-  
   return 0;
 }
 
