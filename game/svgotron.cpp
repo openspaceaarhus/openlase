@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
       uint32_t color = (paint.type == NSVG_PAINT_COLOR) ? paint.color : C_WHITE;
 
       for (auto path = shape->paths; path != NULL; path = path->next) {
-	if (path->closed) {
+	if (true || "how do you determine if this is a line og bezier curve?") {
 	  // cout << "draw my like one of your french girls" << endl;
 	  olBegin(OL_LINESTRIP);
 	  for (auto i = 0; i < path->npts-1; i += 3) {

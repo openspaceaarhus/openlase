@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <thread>
 #define GLM_FORCE_RADIANS
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
@@ -14,6 +15,9 @@
 #include <sstream>
 
 #include <libol.h>
+
+#include <zmq.hpp>
+#include "message.h"
 
 
 using namespace std;
@@ -27,7 +31,7 @@ public:
     olBegin(OL_LINESTRIP);
     for(auto p : vertices)  {
       olVertex(p.x, p.y, color);
-      cout << p.x << ", " << p.y << endl;
+      // cout << p.x << ", " << p.y << endl;
     }
     olEnd();
   }
@@ -114,9 +118,43 @@ private:
 
 Player p1;
 
+bool running;
+void eventLoop() {
+
+  while(running) {
+    //  Prepare our context and socket
+    zmq::context_t context (1);
+    zmq::socket_t socket (context, ZMQ_REP);
+    socket.bind ("tcp://*:5555");
+
+
+    zmq::message_t request;
+    
+    //  Wait for next request from client
+    socket.recv (&request);
+
+    message m = {0,0};
+    memcpy(&m, request.data(), request.size());
+    std::cout << "Received Hello" << std::endl;
+
+    cout << "receivced: " << m.playerno << " ----- " << m.action << endl;
+    //  Do some 'work'
+    
+    //  Send reply back to client
+    zmq::message_t reply (5);
+    memcpy ((void *) reply.data (), "World", 5);
+    socket.send (reply);
+  }
+
+}
+
 
 int main(int argc, char *argv[]) {
 
+  running = true;
+
+  auto eventThread = thread{eventLoop};
+  
   vector<Block> blocks;
 
   auto b = Block {vec2{0,0} };
@@ -133,6 +171,8 @@ int main(int argc, char *argv[]) {
     frame++;
 
     olLoadIdentity();
+
+
     // // check input
     // while (SDL_PollEvent(&e)){
     //   auto key = e.key.keysym.sym;
@@ -165,7 +205,7 @@ int main(int argc, char *argv[]) {
       blocks.emplace_back(Block {vec2{0,0} });
     }
 
-    ftime = olRenderFrame(60);
+    ftime = olRenderFrame(6);
     frames++;
     time += ftime;
     for_each(begin(blocks), end(blocks), [ftime] (Block& b) { b.tick(ftime);});
@@ -174,6 +214,8 @@ int main(int argc, char *argv[]) {
     printf("Frame time: %f, FPS:%f\n", ftime, frames/time);
 
   }
+  running = false;
+  eventThread.join();
     
   return 0;
 }
