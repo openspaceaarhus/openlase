@@ -31,7 +31,6 @@ public:
     olBegin(OL_LINESTRIP);
     for(auto p : vertices)  {
       olVertex(p.x, p.y, color);
-      // cout << p.x << ", " << p.y << endl;
     }
     olEnd();
   }
@@ -47,14 +46,15 @@ public:
   Player() {
     col.g = col.b = 0;
     t = 0.0f;
+    alive = false;
   }
 
   virtual void tick(int ms) {
     vertices.clear();
-    vertices.emplace_back(vec2 {cos(t-.02), sin(t-.02)});
+    vertices.emplace_back(vec2 {cos(t-size), sin(t-size)});
     vertices.emplace_back(vec2 {cos(t), sin(t)});
-    vertices.emplace_back(vec2 {cos(t+.02), sin(t+.02)});
-    vertices.emplace_back(vec2 {cos(t-.02), sin(t-.02)});
+    vertices.emplace_back(vec2 {cos(t+size), sin(t+size)});
+    vertices.emplace_back(vec2 {cos(t-size), sin(t-size)});
   }
 
   void rightPressed() {
@@ -64,9 +64,12 @@ public:
   void leftPressed() {
     t -= .05;
   }
-
   float t = 0;
+  float size = 0.1;
+  bool alive;
 };
+
+array<Player, 7> players;
 
 class Block : public GameObject {
 public:
@@ -116,7 +119,7 @@ private:
 };
 
 
-Player p1;
+
 
 bool running;
 void eventLoop() {
@@ -186,7 +189,10 @@ int main(int argc, char *argv[]) {
     // }
 
     // display
-    p1.render();
+    for_each(begin(players), end(players), [] (const Player&p) 
+	     { if (p.alive) {
+		 p.render();}
+	     });
     for_each(begin(blocks), end(blocks), [] (const Block& b) { b.render();});
     // // limit FPS
     // while (dt < 30) {
@@ -209,7 +215,11 @@ int main(int argc, char *argv[]) {
     frames++;
     time += ftime;
     for_each(begin(blocks), end(blocks), [ftime] (Block& b) { b.tick(ftime);});
-    p1.tick(ftime);
+    for_each(begin(players), end(players), [ftime] (Player&p) 
+	     { if (p.alive) {
+		 p.tick(ftime);
+		 p.render();}
+	     });
 
     printf("Frame time: %f, FPS:%f\n", ftime, frames/time);
 

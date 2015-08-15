@@ -71,12 +71,10 @@ void scaleAndOffSet() {
 	p[1] = p[1]*2.0 - 1.0;
 	p[3] = p[3]*2.0 - 1.0;
 	p[5] = p[5]*2.0 - 1.0;
-
 	// invert y
 	p[1] *= -1.0f;
 	p[3] *= -1.0f;
 	p[5] *= -1.0f;
-	
       }
     }
   }
@@ -128,7 +126,6 @@ int main(int argc, char *argv[]) {
 	}
       }
     }
-
     ftime = olRenderFrame(60);
     frames++;
     time += ftime;
