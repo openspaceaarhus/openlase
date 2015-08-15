@@ -4,6 +4,9 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <fstream>
+#include <vector>
 #define GLM_FORCE_RADIANS
 #include <glm/vec2.hpp>
 #include <glm/glm.hpp>
@@ -18,11 +21,32 @@
 using namespace std;
 using namespace glm;
 
-
+string prefix; /// the prefix appended to all files ie /where/my/svgs/resides
 vec2 aabbMin { 424242	, 424242};
 vec2 aabbMax {-424242	, -424242};
 
+void resetAABB() {
+  aabbMin.x =  aabbMin.y =  424242;
+  aabbMax.x =  aabbMax.y = -424242;
+}
+
 struct NSVGimage* image;
+
+struct Playlist {
+  vector<int> times;
+  vector<string> files;
+  void clear() {
+    times.clear();
+    files.clear();
+    idx = 0;
+  }
+  int currentTime() const {
+    return times[idx];
+  }
+  int total_time;
+  size_t idx;
+};
+Playlist playlist;
 
 void includePt(vec2 p) {
   aabbMin.x = (p.x < aabbMin.x) ? p.x : aabbMin.x;
@@ -81,58 +105,88 @@ void scaleAndOffSet() {
 }
 
 void loadFile(std::string filename) {
+  cout << "loading: " << filename << endl;
+  if (image)
+    nsvgDelete(image);
   image = nsvgParseFromFile(filename.c_str(), "px", 96);
+  assert(image);
   printf("size: %f x %f\n", image->width, image->height);
   measureAABB();
   scaleAndOffSet();
   // measureAABB();
 }
 
-int main(int argc, char *argv[]) {
-  std::string filename{"hest.svg"};
-  if (argc > 1) {
-    filename = argv[1];
+void loadNextFile() {
+   if (playlist.idx >= playlist.files.size())
+     playlist.idx = 0;
+   loadFile(playlist.files[playlist.idx++]);
+}
+
+
+void loadPlaylist(std::string filename) {
+  playlist.clear();
+  int time;
+  string file;
+  ifstream ifs(filename);
+  while(ifs >> time >> file) {
+    playlist.times.push_back(time);
+    playlist.files.push_back(prefix + file);
+    cout << "Adding : " << file << " to play for " <<  time << endl;
   }
-  loadFile(filename);
-  laser::initol();
+  loadNextFile();
+}
 
-  float time = 0;
-  float ftime;
-  int frames = 0;
-  while(1) {
-    olLoadIdentity();
-    for (auto shape = image->shapes; shape != NULL; shape = shape->next) {
-      auto paint = shape->stroke;
-      uint32_t color = (paint.type == NSVG_PAINT_COLOR) ? paint.color : C_WHITE;
+int main(int argc, char *argv[]) {
+    std::string filename{"hest.svg"};
+    image = nullptr;
+    if (argc !=  3) {
+      cout << "usage ./" << argv[0] << " prefix playlist" << endl;
+      return EXIT_FAILURE;
+    }
+    prefix = argv[1];
+    loadPlaylist(argv[2]);
+    laser::initol();
+    float time = 0; 			// how long the animation has been playing for
+    float ftime;
+    int frames = 0;
+    while(1) {
+      olLoadIdentity();
+      for (auto shape = image->shapes; shape != NULL; shape = shape->next) {
+	auto paint = shape->stroke;
+	uint32_t color = (paint.type == NSVG_PAINT_COLOR) ? paint.color : C_WHITE;
 
-      for (auto path = shape->paths; path != NULL; path = path->next) {
-	if (true || "how do you determine if this is a line og bezier curve?") {
-	  // cout << "draw my like one of your french girls" << endl;
-	  olBegin(OL_LINESTRIP);
-	  for (auto i = 0; i < path->npts-1; i += 3) {
-	    float* p = &path->pts[i*2];
-	    olVertex(p[0],p[1], color);
+	for (auto path = shape->paths; path != NULL; path = path->next) {
+	  if (true || "how do you determine if this is a line og bezier curve?") {
+	    // cout << "draw my like one of your french girls" << endl;
+	    olBegin(OL_LINESTRIP);
+	    for (auto i = 0; i < path->npts-1; i += 3) {
+	      float* p = &path->pts[i*2];
+	      olVertex(p[0],p[1], color);
+	    }
+	    olEnd();
+	  } else {
+	    olBegin(OL_BEZIERSTRIP);
+	    for (auto i = 0; i < path->npts-1; i += 3) {
+	      float* p = &path->pts[i*2];
+	      olVertex(p[0],p[1], color);
+	      olVertex(p[2],p[3], color);
+	      olVertex(p[4],p[5], color);
+	    }
+	    olEnd();
 	  }
-	  olEnd();
-	} else {
-	  olBegin(OL_BEZIERSTRIP);
-	  for (auto i = 0; i < path->npts-1; i += 3) {
-	    float* p = &path->pts[i*2];
-	    olVertex(p[0],p[1], color);
-	    olVertex(p[2],p[3], color);
-	    olVertex(p[4],p[5], color);
-	  }
-	  olEnd();
 	}
       }
+      ftime = olRenderFrame(60);
+      frames++;
+      time += ftime;
+      if (1000 * time > playlist.currentTime()) {
+	loadNextFile();
+	time = 0;
+      }
+      fprintf(stderr, "Frame time: %f, FPS:%f TotalTime %f\n", ftime, frames/time, time);
     }
-    ftime = olRenderFrame(60);
-    frames++;
-    time += ftime;
-    printf("Frame time: %f, FPS:%f \n", ftime, frames/time);
+    // Delete
+    nsvgDelete(image);
+    return 0;
   }
-  // Delete
-  nsvgDelete(image);
-  return 0;
-}
 
